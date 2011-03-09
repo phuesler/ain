@@ -1,26 +1,37 @@
 {
-    "name" : "ain",
-    "description" : "Syslog logging for node.js",
-    "version" : "0.0.1",
+    "name" : "ain-tcp",
+    "description" : "Syslog logging for node.js, with syslog/TCP support",
+    "version" : "0.0.2",
     "main" : "./index",
+    "contributors" : [
+      {
+        "name" : "Alexander Dorofeev",
+        "email" : "aka.spin@gmail.com"
+      },
+      {
+          "name" : "Chris Ingrassia",
+          "email" : "chris@noneofyo.biz"
+      }
+    ],
     "author" : "Alexander Dorofeev",
     "maintainers" : [
         {
-            "name" : "Alexander Dorofeev",
-            "email" : "aka.spin@gmail.com"
+            "name" : "Chris Ingrassia",
+            "email" : "chris@noneofyo.biz"
         }
     ],
     "repository" : {
         "type" : "git",
-        "url" : "http://github.com/akaspin/ain.git"
+        "url" : "http://github.com/andry1/ain-tcp.git"
     },
     "bugs" : {
-        "web" : "http://github.com/akaspin/ain/issues"
+        "web" : "http://github.com/andry1/ain-tcp/issues"
     },
     "licenses" : [
         {
             "type": "MIT",
-            "url": "http://github.com/akaspin/ain/master/LICENSE"
+            "url": "http://github.com/andry1/ain-tcp/master/LICENSE"
         }
-    ]
+    ],
+    "dependencies": []
 }
