@@ -110,12 +110,13 @@ sys.inherits(SysLogger, events.EventEmitter);
  * @param {String} message
  * @param {Severity} severity
  */
-SysLogger.prototype._sendUDP = function(message, severity) {
+SysLogger.prototype._sendUDP = function(message, severity, tag) {
     var self = this;
+    tag = tag || this.tag;
     var client = dgram.createSocket('udp4');
     var message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
         getDate() + ' ' + this.hostname + ' ' + 
-        this.tag + '[' + process.pid + ']:' + message);
+        tag + '[' + process.pid + ']:' + message);
     client.send(message, 0, message.length, this.port, this.sysloghost, 
         function(err) {
             if (err) {
@@ -149,17 +150,18 @@ SysLogger.prototype._setupTCP = function(done) {
  * @param {String} message
  * @param {Severity} severity
  */
-SysLogger.prototype._sendTCP = function(message, severity, done) {
+SysLogger.prototype._sendTCP = function(message, severity, tag, done) {
   var self = this;
+  tag = tag || this.tag;
   if(this._tcpConnection == null) {
     this._setupTCP(function() {
-      self._sendTCP(message, severity, done);
+      self._sendTCP(message, severity, tag, done);
     });
     return;
   }
   var msg = new Buffer('<' + (this.facility * 8 + severity) + '>' +
       getDate() + ' ' + this.hostname + ' ' + 
-      this.tag + '[' + process.pid + ']:' + message);
+      tag + '[' + process.pid + ']:' + message);
   if(message.charAt(message.length-1) != '\n') msg+='\n';
   this._tcpConnection.write(msg, undefined, 
       function(err) {
@@ -243,10 +245,11 @@ SysLogger.prototype.get = function() {
  * @param {String} message
  * @param {Number|String} severity
  */
-SysLogger.prototype.send = function(message, severity, done) {
+SysLogger.prototype.send = function(message, severity, tag, done) {
     severity = severity || Severity.notice;
+    tag = tag || this.tag;
     if (typeof severity == 'string') severity = Severity[severity];
-    this._send(message, severity, done);
+    this._send(message, severity, tag, done);
 };
 
 /**
