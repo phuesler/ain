@@ -180,7 +180,7 @@ SysLogger.prototype._sendTCP = function(message, severity, tag, done) {
  * @param {Facility|Number|String} By default is "user"
  * @param {String} hostname log messages will appear from. By default is "localhost"
  * @param {String} Syslog server and optional port number, default is "localhost:514" 
- * @param {String} protocol to use for syslog communication, can be "tcp" or "udp".  Default is "udp" 
+ * @param {String} protocol to use for syslog communication, can be "tcp" or "udp".  Default is "tcp" 
  */
 SysLogger.prototype.set = function(tag, facility, hostname, sysloghost, protocol) {
     this.setTag(tag);
@@ -217,10 +217,10 @@ SysLogger.prototype.setPort = function(port) {
   return this;
 }
 SysLogger.prototype.setProtocol = function(protocol) {
-  if((this.protocol = protocol || "udp") == "udp") {
-    SysLogger.prototype._send = SysLogger.prototype._sendUDP;
-  } else {
+  if((this.protocol = protocol || "tcp") == "tcp") {
     SysLogger.prototype._send = SysLogger.prototype._sendTCP;
+  } else {
+    SysLogger.prototype._send = SysLogger.prototype._sendUDP;
   }
 
   return this;

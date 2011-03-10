@@ -1,7 +1,7 @@
 {
     "name" : "ain-tcp",
     "description" : "Syslog logging for node.js, with syslog/TCP support",
-    "version" : "0.0.2",
+    "version" : "0.0.3",
     "main" : "./index",
     "contributors" : [
       {

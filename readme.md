@@ -7,9 +7,7 @@ Brain-free [syslog](http://en.wikipedia.org/wiki/Syslog)** logging for
 implements all `console` functions and formatting. Also *ain* supports UTF-8 
 (tested on Debian Testing/Sid).
 
-*Ain* send messages by UDP to `127.0.0.1:514` (it's more scalable than 
-unix domain socket `/dev/log`) in 
-[RFC 3164](http://www.faqs.org/rfcs/rfc3164.html).
+*Ain* by default sends messages by TCP to `127.0.0.1:514` udp can be specified instead by using the set() method
 
 *In the Phoenician alphabet letter "ain" indicates eye.
 
@@ -106,8 +104,8 @@ to send log messages to a syslog server running on the host `myloggingserver.com
 specify `myloggingserver.com` -- to use a non-standard port, separate it from the hostname with a `:`,
 example `myloggingserver.com:5140`.  The default is `localhost:514`.
 
-`protocol` allows you to specify what transport protocol to use to send log messages, the default is `udp`,
-however, you can specify `tcp` here for reliable log delivery over TCP.
+`protocol` allows you to specify what transport protocol to use to send log messages, the default is `tcp`,
+however, you can specify `udp` here for non-reliable log delivery over UDP.
 
 ## Logging
 
