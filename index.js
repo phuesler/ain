@@ -72,7 +72,7 @@ function leadZero(n) {
     if (n < 10) {
         return '0' + n;
     } else {
-        return n;
+        return n.toString();
     }
 }
 
@@ -82,16 +82,13 @@ function leadZero(n) {
  */
 function getDate() {
     var dt = new Date();
-    var hours = leadZero(dt.getHours());
-    var minutes = leadZero(dt.getMinutes());
-    var seconds = leadZero(dt.getSeconds());
-    var month = dt.getMonth();
-    var day = dt.getDate();
-    (day < 10) && (day = ' ' + day);
-    var months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
-            'Sep', 'Oct', 'Nov', 'Dec' ];
-    return months[month] + " " + day + " " + hours + ":" + minutes
-            + ":" + seconds;
+    var hours = leadZero(dt.getUTCHours());
+    var minutes = leadZero(dt.getUTCMinutes());
+    var seconds = leadZero(dt.getUTCSeconds());
+    var month = leadZero((dt.getUTCMonth() + 1));
+    var day = leadZero(dt.getUTCDate());
+    var year = dt.getUTCFullYear();
+    return year+'-'+month+'-'+day+' '+hours+':'+minutes+':'+seconds;
 }
 
 /**
