@@ -1,5 +1,9 @@
 var dgram = require('dgram');
 var Buffer = require('buffer').Buffer;
+var nodeConsole = console;
+
+var DefaultHostname = require("os").hostname();
+var DefaultAddress = "127.0.0.1";
 
 var Facility = {
     kern:   0,
@@ -48,7 +52,7 @@ function format(f) {
     return objects.join(' ');
   }
   
-  var i = 1;
+  i = 1;
   var args = arguments;
   var str = String(f).replace(formatRegExp, function(x) {
     switch (x) {
@@ -98,13 +102,18 @@ function getDate() {
  */
 function SysLogger() {
     this._times = {};
+    this._logError = function(err, other) {
+      if(err){
+        nodeConsole.error('Cannot connect to %s:%d', this.hostname, this.port);
+      }
+    }.bind(this);
 }
 
 /**
  * Init function. All arguments is optional
  * @param {String} tag By default is __filename
  * @param {Facility|Number|String} By default is "user"
- * @param {String} hostname By default is "localhost"
+ * @param {String} hostname By default is require("os").hostname()
  */
 SysLogger.prototype.set = function(tag, facility, hostname, port) {
     this.setTag(tag);
@@ -126,7 +135,12 @@ SysLogger.prototype.setFacility = function(facility) {
     return this;
 };
 SysLogger.prototype.setHostname = function(hostname) {
-    this.hostname = hostname || 'localhost';
+    if (hostname) {
+      this.hostname = this.address = hostname;
+    } else {
+      this.hostname = DefaultHostname;
+      this.address = DefaultAddress;
+    }
     return this;
 };
 
@@ -151,19 +165,15 @@ SysLogger.prototype.get = function() {
  */
 SysLogger.prototype._send = function(message, severity) {
     var client = dgram.createSocket('udp4');
-    var message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
+    message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
         getDate() + ' ' + this.hostname + ' ' + 
         this.tag + '[' + process.pid + ']:' + message);
     client.send(message,
                 0,
                 message.length,
                 this.port,
-                this.hostname,
-                function(err) {
-                  if(err){
-                    console.error('Cannot connect to %s:%d', this.hostname, this.port);
-                  }
-                }
+                this.address,
+                this._logError
     );
     client.close();
 };
