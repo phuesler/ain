@@ -117,7 +117,7 @@ SysLogger.prototype._sendUDP = function(message, severity, tag) {
     client.send(message, 0, message.length, this.port, this.sysloghost, 
         function(err) {
             if (err) {
-              console.error('Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
+              if(!self.quiet) console.error('Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
               self.emit("error", 'Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
             }
     });
@@ -131,7 +131,7 @@ SysLogger.prototype._setupTCP = function(done) {
   var self = this;
   this._tcpConnection = net.createConnection(this.port, this.sysloghost)
     .on("error", function(exception) {
-      console.log("tcp connect error : " + exception);
+      if(!self.quiet) console.log("tcp connect error : " + exception);
       self.emit("error", exception);
     })
     .on("close", function(had_error) {
@@ -163,7 +163,7 @@ SysLogger.prototype._sendTCP = function(message, severity, tag, done) {
   this._tcpConnection.write(msg, undefined, 
       function(err) {
           if (err) {
-            console.log('Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
+            if(!self.quiet) console.log('Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
             self.emit("error", 'Can\'t connect to '+this.sysloghost+':'+this.port + ':' + err);
           }
           if(done !== undefined) done(err);
@@ -179,10 +179,11 @@ SysLogger.prototype._sendTCP = function(message, severity, tag, done) {
  * @param {String} Syslog server and optional port number, default is "localhost:514" 
  * @param {String} protocol to use for syslog communication, can be "tcp" or "udp".  Default is "tcp" 
  */
-SysLogger.prototype.set = function(tag, facility, hostname, sysloghost, protocol) {
+SysLogger.prototype.set = function(tag, facility, hostname, sysloghost, protocol, quiet) {
     this.setTag(tag);
     this.setFacility(facility);
     this.setHostname(hostname);
+    this.setQuiet(quiet);
     if(sysloghost === undefined) sysloghost="localhost";
     loghost_and_port = sysloghost.split(':');
     this.setSyslogHost(loghost_and_port[0]);
@@ -224,6 +225,10 @@ SysLogger.prototype.setProtocol = function(protocol) {
 }
 SysLogger.prototype.setSyslogHost = function(sysloghost) {
   this.sysloghost = sysloghost || "localhost";
+  return this;
+}
+SysLoggr.prototype.setQuier = function(quiet) {
+  this.quiet = quiet || false;
   return this;
 }
 /**
