@@ -227,7 +227,7 @@ SysLogger.prototype.setSyslogHost = function(sysloghost) {
   this.sysloghost = sysloghost || "localhost";
   return this;
 }
-SysLoggr.prototype.setQuier = function(quiet) {
+SysLogger.prototype.setQuiet = function(quiet) {
   this.quiet = quiet || false;
   return this;
 }
