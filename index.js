@@ -44,27 +44,34 @@ var formatRegExp = /%[sdj]/g;
  * @returns
  */
 function format(f) {
+  var util = require('util');
+
   if (typeof f !== 'string') {
-    var objects = [], util = require('util');
+    var objects = [];
     for (var i = 0; i < arguments.length; i++) {
       objects.push(util.inspect(arguments[i]));
     }
     return objects.join(' ');
   }
-  
-  var index = 1;
+
+
+  var i = 1;
   var args = arguments;
   var str = String(f).replace(formatRegExp, function(x) {
     switch (x) {
-      case '%s': return args[index++];
-      case '%d': return +args[index++];
-      case '%j': return JSON.stringify(args[index++]);
+      case '%s': return String(args[i++]);
+      case '%d': return Number(args[i++]);
+      case '%j': return JSON.stringify(args[i++]);
       default:
         return x;
     }
   });
-  for (var len = args.length; index < len; ++index) {
-    str += ' ' + args[index];
+  for (var len = args.length, x = args[i]; i < len; x = args[++i]) {
+    if (x === null || typeof x !== 'object') {
+      str += ' ' + x;
+    } else {
+      str += ' ' + util.inspect(x);
+    }
   }
   return str;
 }
