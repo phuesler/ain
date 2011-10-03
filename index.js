@@ -5,6 +5,59 @@ var nodeConsole = console;
 var DefaultHostname = require("os").hostname();
 var DefaultAddress = "127.0.0.1";
 
+var Transport = {
+    UDP: function(message, severity) {
+        var client = dgram.createSocket('udp4');
+
+        message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
+            getDate() + ' ' + this.hostname + ' ' + 
+            this.tag + '[' + process.pid + ']:' + message);
+
+        client.send(message,
+                    0,
+                    message.length,
+                    this.port,
+                    this.address,
+                    this._logError
+        );
+        client.close();
+    },
+
+    file: (function() {
+        var logTarget ;
+
+        switch(require('os').type()) {
+            case 'Darwin': 
+                logTarget = '/var/run/syslog' ;
+                break ;
+
+            case 'Linux':
+                logTarget = '/dev/log' ;
+                break ;
+
+            default:
+                throw new Error('Unknown OS Type: ' + require('os').type()) ;
+
+        }
+
+        return function(message, severity) {
+            var client = dgram.createSocket('unix_dgram') ;
+            message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
+                getDate() + ' ' + this.hostname + ' ' + 
+                this.tag + '[' + process.pid + ']:' + message);
+
+            client.send(message,
+                        0,
+                        message.length,
+                        logTarget,
+                        this._logError
+            );
+            client.close() ;
+
+        }
+    })()
+};
+
 var Facility = {
     kern:   0,
     user:   1,
@@ -38,6 +91,7 @@ var Severity = {
 
 // Format RegExp
 var formatRegExp = /%[sdj]/g;
+
 /**
  * Just copy from node.js console
  * @param f
@@ -112,23 +166,42 @@ function SysLogger() {
     this._times = {};
     this._logError = function(err, other) {
       if(err){
-        nodeConsole.error('Cannot connect to %s:%d', this.hostname, this.port);
+        nodeConsole.error('Cannot log message via %s:%d', this.hostname, this.port);
       }
     }.bind(this);
 }
 
 /**
- * Init function. All arguments is optional
- * @param {String} tag By default is __filename
- * @param {Facility|Number|String} By default is "user"
- * @param {String} hostname By default is require("os").hostname()
+ * Init function, takes a configuration object. If a hostname is provided the transport is assumed
+ * to be Transport.UDP
+ * @param {Object} configuration object with the following keys:
+ *          - tag       - {String}                  By default is __filename
+ *          - facility  - {Facility|Number|String}  By default is "user"
+ *          - hostname  - {String}                  By default is require("os").hostname()
+ *          - port      - {Number}                  Defaults to 514
+ *          - transport - {Transport|String}        Defaults to Transport.UDP
  */
-SysLogger.prototype.set = function(tag, facility, hostname, port) {
-    this.setTag(tag);
-    this.setFacility(facility);
-    this.setHostname(hostname);
-    this.setPort(port);
+SysLogger.prototype.set = function(config) {
+    config = config || {} ;
+
+    this.setTag(config.tag);
+    this.setFacility(config.facility);
+    this.setHostname(config.hostname);
+    this.setPort(config.port);
+    if (config.hostname) {
+        this.setTransport(Transport.UDP) ;
+    } else {
+        this.setTransport(config.transport) ;
+    }
     
+    return this;
+};
+
+SysLogger.prototype.setTransport = function(transport) {
+    this.transport = transport || Transport.UDP;
+    if (typeof this.transport == 'string') {
+        this.transport = Transport[this.transport] ;
+    }
     return this;
 };
 
@@ -167,24 +240,14 @@ SysLogger.prototype.get = function() {
     newLogger.set.apply(newLogger, arguments);
     return newLogger;
 };
+
 /**
  * Send message
  * @param {String} message
  * @param {Severity} severity
  */
 SysLogger.prototype._send = function(message, severity) {
-    var client = dgram.createSocket('udp4');
-    message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
-        getDate() + ' ' + this.hostname + ' ' + 
-        this.tag + '[' + process.pid + ']:' + message);
-    client.send(message,
-                0,
-                message.length,
-                this.port,
-                this.address,
-                this._logError
-    );
-    client.close();
+    this.transport(message, severity) ;
 };
 
 /**

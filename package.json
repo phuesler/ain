@@ -1,7 +1,7 @@
 {
     "name" : "ain2",
     "description" : "Syslog logging for node.js. Continuation of ain",
-    "version" : "0.0.3",
+    "version" : "0.0.4",
     "main" : "./index",
     "author" : "Alexander Dorofeev <aka.spin@gmail.com>",
     "contributors" : [
@@ -16,6 +16,10 @@
         {
             "name" : "Mark Wubben",
             "email" : "mark@novemberborn.net"
+        },
+        {
+            "name" : "Parham Michael Ossareh",
+            "email" : "ossareh@gmail.com"
         }
     ],
     "repository" : {

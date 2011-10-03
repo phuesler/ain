@@ -8,9 +8,8 @@ Brain-free [syslog](http://en.wikipedia.org/wiki/Syslog)** logging for
 implements all `console` functions and formatting. Also *ain* supports UTF-8 
 (tested on Debian Testing/Sid).
 
-*Ain* send messages by UDP to `127.0.0.1:514` (it's more scalable than 
-unix domain socket `/dev/log`) in 
-[RFC 3164](http://www.faqs.org/rfcs/rfc3164.html).
+*Ain* can send messages by UDP to `127.0.0.1:514` or to the a unix socket; 
+/dev/log on Linux and /var/run/syslog on Mac OS X
 
 *In the Phoenician alphabet letter "ain" indicates eye.
 
@@ -48,20 +47,27 @@ By default *ain* sets following destinations:
 * `TAG` - `__filename`
 * `Facility` - user (1)
 * `HOSTNAME` - localhost
-* `HOSTNAME` - 514
+* `PORT` - 514
+* `Transport` - UDP or Unix socket
 
 You can change them by `set` function. `set` function is chainable.
 
     var logger = require('ain2')
-            .set('node-test-app', 'daemon', 'devhost', 3000);
+            .set({tag: 'node-test-app', facility: 'daemon', hostname: 'devhost', port: 3000});
     logger.warn('some warning');
     
 ... and in `/var/log/daemon.log`:
 
     Dec  5 07:08:58 devhost node-test-app[10045]: some warning
     
-`set` function takes three arguments: `tag`, `facility` and `hostname`. All 
-of these are optional.
+`set` function takes one argument, a configuration object which can contain the following keys:
+ * tag - defaults to __filename
+ * facility - defaults to user
+ * hostname - defaults to require('os').hostname()
+ * port - defaults to 514
+ * transport - defaults to 'UDP', can also be 'file'
+
+All of these are optional. If you provide a `hostname` transport is automatically set to UDP
 
 `tag` and `hostname` arguments is just *RFC 3164* `TAG` and `HOSTNAME` of 
 your messages.
@@ -91,17 +97,18 @@ your messages.
 
 You can set `facility` by `String` or `Number`:
 
-    logger.set('node-test-app', 3);
-    logger.set('node-test-app', 'daemon');
+    logger.set({tag: 'node-test-app', facility: 3});
+    logger.set({tag: 'node-test-app', facility: 'daemon'});
     
-Also you can set `TAG`, `Facility` and `HOSTNAME` separatelly by `setTag`, 
-`setFacility` and `setHostname` functions. All of them is chainable too.
+Also you can set `TAG`, `Facility`, `HOSTNAME`, `PORT`, and `transport` separately by `setTag`, 
+`setFacility`, `setHostname`, `setPort` and `setTransport` functions. All of them are chainable too.
 
-You can get all destinations by theese properties:
+You can get all destinations by these properties:
 
 * `tag` TAG
 * `facility` Numerical representation of RFC 3164 facility
 * `hostname` HOSTNAME
+* `port` PORT
 
 ## Logging
 
