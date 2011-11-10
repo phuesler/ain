@@ -36,6 +36,7 @@ function getDate() {
 var Transport = {
     UDP: function(message, severity) {
         var client = dgram.createSocket('udp4');
+        var self = this;
 
         message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
             getDate() + ' ' + this.hostname + ' ' + 
@@ -46,9 +47,11 @@ var Transport = {
                     message.length,
                     this.port,
                     this.address,
-                    this._logError
+                    function(err, bytes) {
+                      self._logError(err, bytes);
+                      client.close();
+                    }
         );
-        client.close();
     },
 
     file: (function() {
