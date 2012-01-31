@@ -88,6 +88,7 @@ The `set` function takes one argument, a configuration object which can contain 
  * hostname - defaults to require('os').hostname()
  * port - defaults to 514
  * transport - defaults to 'UDP', can also be 'file'
+ * concise - defaults to true
 
 All of these are optional. If you provide a `hostname` transport is automatically set to UDP
 
@@ -116,6 +117,8 @@ your messages.
     21  local5  local use 5
     22  local6  local use 6
     23  local7  local use 7
+
+If `concise` is true, the tag, filename, and supplied hostname will not be written out as part of the entry.
 
 You can set the `facility` by `String` or `Number`:
 
