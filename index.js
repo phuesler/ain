@@ -38,9 +38,15 @@ var Transport = {
         var client = dgram.createSocket('udp4');
         var self = this;
 
-        message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
-            getDate() + ' ' + this.hostname + ' ' + 
+        if (this.concise == true) {
+            message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
+            getDate() + ' ' + message);
+        } else {
+            message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
+            getDate() + ' ' + this.hostname + ' ' +
             this.tag + '[' + process.pid + ']:' + message);
+        }
+
 
         client.send(message,
                     0,
@@ -73,9 +79,15 @@ var Transport = {
 
         return function(message, severity) {
             var client = dgram.createSocket('unix_dgram') ;
-            message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
-                getDate() + ' ' + this.hostname + ' ' + 
-                this.tag + '[' + process.pid + ']:' + message);
+	        if (this.concise == true) {
+	            message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
+	                      getDate() + ' ' + message);
+	        } else {
+	                message = new Buffer('<' + (this.facility * 8 + severity) + '>' +
+	                          getDate() + ' ' + this.hostname + ' ' +
+		                  this.tag + '[' + process.pid + ']:' + message);
+		    }
+
 
             client.send(message,
                         0,
@@ -198,6 +210,7 @@ SysLogger.getInstance = function() {
  *          - hostname  - {String}                  By default is require("os").hostname()
  *          - port      - {Number}                  Defaults to 514
  *          - transport - {Transport|String}        Defaults to Transport.UDP
+ *	    - concise	- {Boolean}		    Defaults to false
  */
 SysLogger.prototype.set = function(config) {
     config = config || {} ;
@@ -206,6 +219,7 @@ SysLogger.prototype.set = function(config) {
     this.setFacility(config.facility);
     this.setHostname(config.hostname);
     this.setPort(config.port);
+    this.setConcise(config.concise);
     if (config.hostname) {
         this.setTransport(Transport.UDP) ;
     } else {
@@ -214,6 +228,12 @@ SysLogger.prototype.set = function(config) {
     
     return this;
 };
+
+SysLogger.prototype.setConcise = function(concise)
+{
+    this.concise = concise || false;
+    return this;
+}
 
 SysLogger.prototype.setTransport = function(transport) {
     this.transport = transport || Transport.UDP;
