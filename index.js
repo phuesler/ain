@@ -35,24 +35,20 @@ var Transport = {
             case 'Linux':
                 logTarget = '/dev/log' ;
                 break ;
-
-            default:
-                throw new Error('Unknown OS Type: ' + require('os').type()) ;
-
         }
-
-        return function(message, severity) {
-            var client = dgram.createSocket('unix_dgram') ;
-            var syslogMessage = this.composerFunction(message, severity);
-            client.send(syslogMessage,
-                        0,
-                        syslogMessage.length,
-                        logTarget,
-                        this._logError
-            );
-            client.close() ;
-
-        };
+        if (logTarget) {
+            return function(message, severity) {
+                var client = dgram.createSocket('unix_dgram') ;
+                var syslogMessage = this.composerFunction(message, severity);
+                client.send(syslogMessage,
+                            0,
+                            syslogMessage.length,
+                            logTarget,
+                            this._logError
+                );
+                client.close() ;
+            };
+        }
     })()
 };
 
