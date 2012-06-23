@@ -2,7 +2,7 @@ var dgram = require('dgram'),
     Buffer = require('buffer').Buffer,
     events = require('events'),
     net = require('net'),
-    sys = require('sys');
+    util = require('util');
 
 var Facility = {
     kern:   0,
@@ -100,7 +100,7 @@ function SysLogger() {
     this._times = {};
     this._tcpConnection = null;
 }
-sys.inherits(SysLogger, events.EventEmitter);
+util.inherits(SysLogger, events.EventEmitter);
 
 /**
  * Send message with UDP
