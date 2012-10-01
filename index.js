@@ -7,19 +7,63 @@ var DefaultAddress = "127.0.0.1";
 var SingletonInstance = null;
 
 
+ var socket
+   , socketUsers = 0
+   , releaseTimeout
+   , socketErrorHandler = function (err) {
+         if (err) {
+             nodeConsole.error('socket error: ' + err)    
+         } else {
+             nodeConsole.error('unknown socket error!')
+         }
+         
+         if (socket !== undefined) {
+             socket.close()
+             socket = undefined
+             socketUsers = 0                        
+         }
+     }
+   , getSocket = function () {
+         if (undefined === socket) {
+             socket = dgram.createSocket('udp4')
+             socket.on('error', socketErrorHandler)
+         }
+         ++socketUsers
+         //console.log(socketUsers)
+         return socket
+     }
+   , releaseSocket = function () {
+         --socketUsers
+         //console.log(socketUsers)
+         if (0 == socketUsers && undefined === releaseTimeout) {
+             releaseTimeout = setTimeout(function () {
+                 if (0 == socketUsers && socket !== undefined) {
+                     //console.log('closing socket!')
+                     socket.close()
+                     socket = undefined
+                 } /*else {
+                     console.log('another user attached while waiting to close the socket')
+                 }*/
+                 releaseTimeout = undefined
+             }, 1000)
+         }
+     }
+
+
+
 var Transport = {
     UDP: function(message, severity) {
-        var client = dgram.createSocket('udp4');
         var self = this;
         var syslogMessage = this.composerFunction(message, severity);
-        client.send(syslogMessage,
+
+        getSocket().send(syslogMessage,
                     0,
                     syslogMessage.length,
                     this.port,
                     this.address,
                     function(err, bytes) {
                       self._logError(err, bytes);
-                      client.close();
+                      releaseSocket();
                     }
         );
     },
@@ -34,14 +78,17 @@ var Transport = {
 
             case 'Linux':
                 logTarget = '/dev/log' ;
-                break ;
-
+                break ;           
             default:
-                throw new Error('Unknown OS Type: ' + require('os').type()) ;
-
+                logTarget = false ;
+                break ;
         }
 
         return function(message, severity) {
+            if (false === logTarget) {
+                throw new Error('Unknown OS Type: ' + require('os').type()) ;
+            }
+
             var client = dgram.createSocket('unix_dgram') ;
             var syslogMessage = this.composerFunction(message, severity);
             client.send(syslogMessage,
