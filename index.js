@@ -29,6 +29,7 @@ var Transport = {
 
         switch(require('os').type()) {
             case 'Darwin': 
+            case 'FreeBSD':
                 logTarget = '/var/run/syslog' ;
                 break ;
 
