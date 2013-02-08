@@ -198,6 +198,7 @@ SysLogger.getInstance = function() {
  *          - tag       - {String}                  By default is __filename
  *          - facility  - {Facility|Number|String}  By default is "user"
  *          - hostname  - {String}                  By default is require("os").hostname()
+ *          - address   - {String}                  By default is 127.0.0.1
  *          - port      - {Number}                  Defaults to 514
  *          - transport - {Transport|String}        Defaults to Transport.UDP
  */
@@ -207,6 +208,7 @@ SysLogger.prototype.set = function(config) {
     this.setTag(config.tag);
     this.setFacility(config.facility);
     this.setHostname(config.hostname);
+    this.setAddress(config.address);
     this.setPort(config.port);
     this.setMessageComposer(config.messageComposer);
     this.setTransport(Transport.UDP);
@@ -226,6 +228,7 @@ SysLogger.prototype.setTag = function(tag) {
     this.tag = tag || __filename;
     return this;
 };
+
 SysLogger.prototype.setFacility = function(facility) {
     this.facility = facility || Facility.user;
     if (typeof this.facility == 'string'){
@@ -233,13 +236,14 @@ SysLogger.prototype.setFacility = function(facility) {
     }
     return this;
 };
+
+SysLogger.prototype.setAddress = function(address) {
+    this.address = address || DefaultAddress;
+    return this;
+};
+
 SysLogger.prototype.setHostname = function(hostname) {
-    if (hostname) {
-        this.hostname = this.address = hostname;
-    } else {
-        this.hostname = DefaultHostname;
-        this.address = DefaultAddress;
-    }
+    this.hostname = hostname || DefaultHostname;
     return this;
 };
 
