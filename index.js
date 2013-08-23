@@ -1,4 +1,4 @@
-var dgram = require('dgram');
+var dgram = require('unix-dgram');
 var Buffer = require('buffer').Buffer;
 var nodeConsole = console;
 
@@ -34,13 +34,14 @@ var socketErrorHandler = function (err) {
     }
 
 }
-var getSocket = function () {
+SysLogger.prototype.getSocket = function () {
 
     if (undefined === socket) {
+        if (this.transport === 'udp4' || this.transport === 'udp6' || this.transport === 'unix_dgram'){
+            socket = dgram.createSocket(this.transport)
 
-        socket = dgram.createSocket('udp4')
-
-        socket.on('error', socketErrorHandler)
+            socket.on('error', socketErrorHandler)
+        }
 
     }
 
@@ -73,21 +74,38 @@ var releaseSocket = function () {
 
 }
 
-
 var Transport = {
     UDP: function(message, severity) {
         var self = this;
-        var syslogMessage = this.composerFunction(message, severity);
-        getSocket().send(syslogMessage,
-                         0,
-                         syslogMessage.length,
-                         this.port,
-                         this.address,
-                         function(err, bytes) {
-                             self._logError(err, bytes);
-                             releaseSocket();
-                         }
-                        );
+        var syslogMessage = self.composerFunction(message, severity);
+        self.getSocket().send(syslogMessage, 0, syslogMessage.length, self.port, self.address, function(err, bytes) {
+            self._logError(err, bytes);
+            releaseSocket();
+        });
+    },
+    unix_dgram: function(message, severity){
+        var self = this;
+        var preambleBuffer = self.composerFunction('', severity);
+        var formattedMessageBuffer = Buffer.isBuffer(message) ? message : new Buffer(message);
+        var chunkSize = 2000 - preambleBuffer.length - 200;
+        var numChunks = Math.ceil(formattedMessageBuffer.length / chunkSize);
+
+        var fragments = [preambleBuffer];
+        if (numChunks > 1){
+            for (var i = 0; i < numChunks; i++){
+                fragments.push(formattedMessageBuffer.slice(i * chunkSize, Math.min(formattedMessageBuffer.length, (i + 1) * chunkSize)),
+                              new Buffer(' [' + (i + 1) + '/' + numChunks + ']', 'ascii')); 
+            }
+        } else{
+            fragments.push(formattedMessageBuffer);
+        }
+
+        var chunk = Buffer.concat(fragments); 
+        var socket = self.getSocket();
+        socket.send(chunk, 0, chunk.length, self.address, function(err, bytes){
+            self._logError(err, bytes);
+            releaseSocket();
+        });
     }
 };
 
@@ -170,7 +188,6 @@ function format(f) {
  * @returns {SysLogger}
  */
 function SysLogger(config) {
-    this._times = {};
     this._logError = function(err, other) {
         if(err){
             nodeConsole.error('Cannot log message via %s:%d', this.hostname, this.port);
@@ -211,16 +228,16 @@ SysLogger.prototype.set = function(config) {
     this.setAddress(config.address);
     this.setPort(config.port);
     this.setMessageComposer(config.messageComposer);
-    this.setTransport(Transport.UDP);
+    this.setTransport(config.transport || 'udp4');
 
     return this;
 };
 
 SysLogger.prototype.setTransport = function(transport) {
-    this.transport = transport || Transport.UDP;
-    if (typeof this.transport == 'string') {
-        this.transport = Transport[this.transport] ;
+    if (typeof transport !== 'string'){
+        throw new TypeError('Unexpected transport type. Must be udp4, udp6, or unix_dgram');
     }
+    this.transport = transport || 'udp4';
     return this;
 };
 
@@ -263,7 +280,14 @@ SysLogger.prototype.setMessageComposer = function(composerFunction){
  * @param {Severity} severity
  */
 SysLogger.prototype._send = function(message, severity) {
-    this.transport(message, severity) ;
+    this.transport = this.transport || 'udp4'; // default to udp4
+
+    var udpTransport = (this.transport === 'udp4' || this.transport === 'udp6') ? Transport.UDP : null;
+    if (udpTransport){
+        udpTransport.call(this, message, severity);
+    } else if (this.transport === 'unix_dgram'){
+        Transport.unix_dgram.call(this, message, severity);
+    }
 };
 
 /**
@@ -329,6 +353,7 @@ SysLogger.prototype.dir = function(object) {
 };
 
 SysLogger.prototype.time = function(label) {
+    if (!this._times) this._times = {};
     this._times[label] = Date.now();
 };
 SysLogger.prototype.timeEnd = function(label) {
