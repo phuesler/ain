@@ -1,46 +1,53 @@
 {
-    "name" : "ain2",
-    "description" : "Syslog logging for node.js. Continuation of ain",
-    "version" : "1.1.1",
-    "main" : "./index",
-    "author" : "Alexander Dorofeev <aka.spin@gmail.com>",
-    "contributors" : [
-        {
-            "name" : "Alexander Dorofeev",
-            "email" : "aka.spin@gmail.com"
-        },
-        {
-            "name" : "Patrick Huesler",
-            "email" : "patrick.huesler@googlemail.com"
-        },
-        {
-            "name" : "Mark Wubben",
-            "email" : "mark@novemberborn.net"
-        },
-        {
-            "name" : "Parham Michael Ossareh",
-            "email" : "ossareh@gmail.com"
-        },
-        {
-            "name" : "Carlos Lage",
-            "email" : "carlos.lage@livestream.com"
-        },
-        {
-            "name" : "J. Maurice",
-            "email" : "j@wiz.biz"
-        }
-    ],
-    "repository" : {
-        "type" : "git",
-        "url" : "http://github.com/phuesler/ain.git"
+  "name": "ain2",
+  "description": "Syslog logging for node.js. Continuation of ain",
+  "version": "1.1.1",
+  "main": "./index",
+  "author": "Alexander Dorofeev <aka.spin@gmail.com>",
+  "scripts": {
+      "test": "./node_modules/.bin/mocha test/**/*.spec.js"
+  },
+  "contributors": [
+    {
+      "name": "Alexander Dorofeev",
+      "email": "aka.spin@gmail.com"
     },
-    "bugs" : {
-        "url" : "http://github.com/phuesler/ain/issues"
+    {
+      "name": "Patrick Huesler",
+      "email": "patrick.huesler@googlemail.com"
     },
-    "licenses" : [
-        {
-            "type": "MIT",
-            "url": "http://github.com/phuesler/ain/master/LICENSE"
-        }
-    ]
+    {
+      "name": "Mark Wubben",
+      "email": "mark@novemberborn.net"
+    },
+    {
+      "name": "Parham Michael Ossareh",
+      "email": "ossareh@gmail.com"
+    },
+    {
+      "name": "Carlos Lage",
+      "email": "carlos.lage@livestream.com"
+    },
+    {
+      "name": "J. Maurice",
+      "email": "j@wiz.biz"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/phuesler/ain.git"
+  },
+  "bugs": {
+    "url": "http://github.com/phuesler/ain/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/phuesler/ain/master/LICENSE"
+    }
+  ],
+  "devDependencies": {
+    "mocha": "~1.12.0",
+    "chai": "~1.7.2"
+  }
 }
