@@ -6,6 +6,8 @@ var DefaultHostname = require("os").hostname();
 var DefaultAddress = "127.0.0.1";
 var SingletonInstance = null;
 
+var moment = require('moment');
+
 var socket
 var socketUsers = 0
 var releaseTimeout
@@ -442,7 +444,7 @@ SysLogger.prototype.timeEnd = function(label) {
  * @returns {String}
  */
 SysLogger.prototype.getDate = function() {
-    return new Date().toISOString();
+    return moment().format();
 }
 
 SysLogger.prototype.leadZero = function(n) {
