@@ -56,6 +56,6 @@
     "chai": "~1.7.2"
   },
   "optionalDependencies": {
-    "unix-dgram": "0.2.3"
+    "unix-dgram": "^2.0.2"
   }
 }
