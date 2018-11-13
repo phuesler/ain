@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v3.0.0
+
+* Upgrade unix-dgram to 2.0.2 (hsalokor)
+
 ## v2.0.0
 
 * Upgrade unix-dgram to 0.2.3 (josephfrazier)
