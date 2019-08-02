@@ -1,7 +1,7 @@
 {
   "name": "ain2",
   "description": "Syslog logging for node.js. Continuation of ain",
-  "version": "2.0.0",
+  "version": "3.0.1",
   "main": "./index",
   "author": "Alexander Dorofeev <aka.spin@gmail.com>",
   "scripts": {
@@ -44,7 +44,7 @@
   "bugs": {
     "url": "http://github.com/phuesler/ain/issues"
   },
-  "license" : "MIT",
+  "license": "MIT",
   "licenses": [
     {
       "type": "MIT",
@@ -56,6 +56,6 @@
     "chai": "~1.7.2"
   },
   "optionalDependencies": {
-    "unix-dgram": "^2.0.2"
+    "unix-dgram": "^2.0.3"
   }
 }
