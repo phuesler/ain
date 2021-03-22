@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.0.0
+
+* Upgrade unix-dgram to 2.0.4
+* Upgrade mocha to 8.3.2
+* Replace deprecated [DEP0005] Buffer() to Buffer.from()
+
 ## v2.0.0
 
 * Upgrade unix-dgram to 0.2.3 (josephfrazier)
