@@ -44,7 +44,7 @@
   "bugs": {
     "url": "http://github.com/phuesler/ain/issues"
   },
-  "license" : "MIT",
+  "license": "MIT",
   "licenses": [
     {
       "type": "MIT",
@@ -52,10 +52,10 @@
     }
   ],
   "devDependencies": {
-    "mocha": "~1.12.0",
+    "mocha": "^8.3.2",
     "chai": "~1.7.2"
   },
   "optionalDependencies": {
-    "unix-dgram": "^2.0.2"
+    "unix-dgram": "^2.0.4"
   }
 }
