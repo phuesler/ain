@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v4.0.0
+## v3.0.2
 
 * Upgrade unix-dgram to 2.0.4
 * Upgrade mocha to 8.3.2
